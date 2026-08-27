@@ -56,7 +56,7 @@ The binary is not Authenticode-signed, so Windows SmartScreen may warn.
 ## Known alpha limitations
 
 - The public checkout is not source-complete and cannot reproduce the binary.
-- `CHECKSUMS.txt` and `RELEASE_MANIFEST.json` disagree with the imported `VERIFICATION.md` receipt about binary identity.
+- Exact-head Windows CI verifies the tracked binary against `CHECKSUMS.txt` and `RELEASE_MANIFEST.json`; the imported `VERIFICATION.md` hash belongs to another or earlier unbound artifact.
 - Actual Windows collection quality depends on token elevation and OS access controls.
 - A live-host snapshot cannot rule out firmware, kernel-memory-only, protected-process, offline, or raced evidence.
 - No finding means only that the active rule pack did not compile a material condition from accessible evidence.

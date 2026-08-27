@@ -34,7 +34,8 @@ This gate outranks visual expansion and new collectors because the current publi
 
 ### 0.2 Artifact integrity
 
-- Reconcile `CHECKSUMS.txt`, `RELEASE_MANIFEST.json`, and `VERIFICATION.md` against one rebuilt binary.
+- Preserve the achieved exact-head package-coherence gate for hash, manifest, byte size, PE target, unsigned status, and launcher identity.
+- Replace the historical mismatched `VERIFICATION.md` receipt with a new receipt for one rebuilt binary.
 - Bind the binary hash to the exact source commit, Go version, build flags, and rule-pack identity.
 - Publish a release rather than treating a repository blob as the release channel.
 - Add Authenticode signing when a protected signing path is available.

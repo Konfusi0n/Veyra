@@ -1,7 +1,7 @@
 # Veyra v0.1.1-alpha — Imported Root Glass Verification Receipt
 
 > [!CAUTION]
-> **This historical receipt is not a clean publication proof for the current repository binary.** It declares SHA-256 `DB12821FAF628B0AFECEABADE9145A84DC9AF1A5573CD24CA96761BB23644A44`, while `CHECKSUMS.txt` and `RELEASE_MANIFEST.json` declare `ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf`. The source used to produce either artifact is not present in this repository. The mismatch is preserved explicitly; it must be resolved by an exact-source rebuild and a new Windows-native receipt, not by silently editing the historical claim.
+> **This historical receipt is not publication proof for the current repository binary.** It declares SHA-256 `DB12821FAF628B0AFECEABADE9145A84DC9AF1A5573CD24CA96761BB23644A44`. Exact-head Windows CI now independently computes the tracked binary as `ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf`, matching `CHECKSUMS.txt` and `RELEASE_MANIFEST.json`. The current package identity is therefore coherent; this imported receipt belongs to another or earlier artifact and is preserved as historical evidence rather than silently rewritten. The source used to produce either artifact is not present, so source provenance and live collector behavior remain unresolved.
 
 The receipt below was imported with the original v0.1.1-alpha package. **Root Glass** is the earlier product name; **Veyra** is the current identity.
 

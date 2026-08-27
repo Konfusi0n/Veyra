@@ -21,6 +21,23 @@
     "trimpath": true,
     "sourcePresentInRepository": false
   },
+  "portableVerification": {
+    "workflow": ".github/workflows/verify-portable.yml",
+    "scope": "exact-head package coherence",
+    "verifies": [
+      "binary SHA-256 matches CHECKSUMS.txt and this manifest",
+      "binary byte size matches this manifest",
+      "AMD64 PE32+ Windows GUI target",
+      "declared unsigned Authenticode status",
+      "compatibility launchers expose bounded help"
+    ],
+    "doesNotVerify": [
+      "source provenance",
+      "read-only runtime behavior",
+      "collector correctness",
+      "live Windows outcomes"
+    ]
+  },
   "verified": [
     "go test -count=1 ./... (reported by imported build receipt)",
     "go vet ./... (reported by imported build receipt)",
@@ -30,8 +47,7 @@
     "PE32+ Windows GUI target (reported by imported build receipt)"
   ],
   "pendingReconciliation": [
-    "independently recompute the tracked executable SHA-256",
-    "reconcile VERIFICATION.md with CHECKSUMS.txt and this manifest",
+    "replace the historical VERIFICATION.md receipt with a new source-bound receipt",
     "bind the artifact to an exact source commit"
   ],
   "pendingLiveProof": [

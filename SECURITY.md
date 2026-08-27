@@ -93,7 +93,7 @@ Compute its SHA-256 locally before evaluation:
 Get-FileHash .\RootGlass.exe -Algorithm SHA256
 ```
 
-`CHECKSUMS.txt` and `RELEASE_MANIFEST.json` currently agree with one another, but the imported `VERIFICATION.md` receipt names a different hash. The source is absent. Until a rebuilt artifact is bound to one exact commit, one checksum, one manifest, and one Windows-native receipt, treat this alpha as provenance-limited rather than verified.
+Exact-head Windows CI independently verifies that the tracked binary matches `CHECKSUMS.txt`, `RELEASE_MANIFEST.json`, the declared byte size, the AMD64 PE32+ Windows GUI target, and unsigned Authenticode status. The imported `VERIFICATION.md` receipt names a different hash and is preserved as historical evidence for another or earlier artifact. Because source is absent and collector execution is not part of that package gate, treat the alpha as package-coherent but source- and runtime-provenance-limited.
 
 ## Declared non-capabilities
 

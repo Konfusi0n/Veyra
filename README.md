@@ -14,6 +14,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Konfusi0n/Veyra/actions/workflows/verify-portable.yml"><img alt="Portable package verification" src="https://github.com/Konfusi0n/Veyra/actions/workflows/verify-portable.yml/badge.svg"></a>
   <img alt="Alpha release" src="https://img.shields.io/badge/release-v0.1.1--alpha-F2B85B?style=flat-square">
   <img alt="Windows 10 and 11 x64" src="https://img.shields.io/badge/target-Windows_10%2F11_x64-55DFF6?style=flat-square">
   <img alt="Read-only mode" src="https://img.shields.io/badge/mode-read--only-4FE0AE?style=flat-square">
@@ -212,13 +213,13 @@ Veyra applies its own doctrine to itself: appearance is not proof, and a polishe
 | **Executable** | A 6,476,288-byte Windows x64 GUI binary is present under the legacy name `RootGlass.exe`. |
 | **Source** | The Go source tree described by the imported documentation is **not present in this repository**. The current binary cannot be reproduced from this checkout. |
 | **Build evidence** | The imported manifest and verification receipt report Go tests, vetting, policy gates, and a Windows cross-build performed against a separate source package. Those gates cannot be rerun here. |
-| **Hosted CI** | No GitHub Actions workflow or exact-head status check is present on the imported commit. |
+| **Hosted CI** | The Veyra correction adds an exact-head Windows package gate for hash, manifest, byte size, PE target, unsigned status, and launcher help. It does not execute the security collector. |
 | **Windows proof** | The receipt explicitly leaves Windows-native collector execution, browser launch, and protected-evidence coverage pending after the v0.1.1 hotfix. |
 | **Signing** | The alpha binary is not Authenticode-signed. Windows SmartScreen may warn. |
 | **Mutation** | The documented v0.1 boundary is read-only; the repository contains no evidence of a remediation capability. |
 
-> [!CAUTION]
-> **Artifact identity is not yet cleanly reconciled.** `CHECKSUMS.txt` and `RELEASE_MANIFEST.json` declare SHA-256 `ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf`, while the imported [`VERIFICATION.md`](VERIFICATION.md) receipt names a different hash. The original receipt is preserved instead of being silently rewritten. Treat this alpha as provenance-limited until one rebuilt artifact, one checksum, one exact-source commit, and one Windows-native receipt are published together.
+> [!IMPORTANT]
+> **The current portable package is now independently coherent, but it is not source-provenanced.** The exact-head Windows gate recomputes SHA-256 `ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf`, matching `CHECKSUMS.txt` and `RELEASE_MANIFEST.json`; it also verifies the declared byte size, AMD64 PE32+ Windows GUI target, and unsigned status. The imported [`VERIFICATION.md`](VERIFICATION.md) receipt names a different hash and is therefore preserved as a historical receipt for another or earlier artifact—not proof for the tracked binary. Source binding and live collector behavior remain unresolved.
 
 This is not cosmetic self-criticism. It is Veyra's thesis applied inward: **a confidence-shaped document is not independent evidence.**
 
@@ -241,7 +242,7 @@ From Command Prompt:
 certutil -hashfile RootGlass.exe SHA256
 ```
 
-Compare the result with `CHECKSUMS.txt`, then read the artifact-identity warning above. A matching checksum proves byte identity with that declaration; it does not prove source provenance, signing, or live behavior.
+Stop if the result differs from `CHECKSUMS.txt`. A match proves byte identity with the package verified by the repository workflow; it does not prove source provenance, read-only runtime behavior, collector correctness, or a live-clean machine.
 
 ### 3. Launch
 

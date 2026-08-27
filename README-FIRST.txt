@@ -25,8 +25,10 @@ LOCAL DATA
 IMPORTANT PROOF BOUNDARY
   - This repository contains the portable binary and documents, not source.
   - The alpha binary is not Authenticode-signed. SmartScreen may warn.
-  - CHECKSUMS.txt and RELEASE_MANIFEST.json agree with one another.
-  - The imported VERIFICATION.md receipt names a different binary hash.
+  - Exact-head Windows CI verifies the tracked binary against CHECKSUMS.txt,
+    RELEASE_MANIFEST.json, its byte size, PE target, and unsigned status.
+  - The imported VERIFICATION.md receipt names a different binary hash and
+    is preserved as historical evidence, not proof for the tracked binary.
   - Windows-native post-hotfix proof is still pending in that receipt.
 
   Compute the binary hash yourself before evaluation:
