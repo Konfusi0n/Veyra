@@ -1,0 +1,36 @@
+{
+  "schema": "rootglass.release.v1",
+  "product": "Root Glass",
+  "version": "0.1.1-alpha",
+  "target": {
+    "os": "windows",
+    "architecture": "amd64",
+    "subsystem": "gui"
+  },
+  "mode": "read-only",
+  "binary": {
+    "path": "dist/RootGlass.exe",
+    "sizeBytes": 6476288,
+    "sha256": "ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf",
+    "authenticodeSigned": false
+  },
+  "build": {
+    "goVersion": "go version go1.23.2 linux/amd64",
+    "cgoEnabled": false,
+    "trimpath": true
+  },
+  "verified": [
+    "go test -count=1 ./...",
+    "go vet ./...",
+    "PowerShell Generic.List compatibility regression gate",
+    "collector read-only policy gate (source-level in Linux)",
+    "Windows x64 cross-build",
+    "PE32+ Windows GUI target"
+  ],
+  "pendingLiveProof": [
+    "Windows-native collector execution after v0.1.1 hotfix",
+    "Windows-native PowerShell AST gate in Build.cmd/Test.cmd",
+    "Windows browser app-window launch",
+    "live protected evidence coverage"
+  ]
+}
