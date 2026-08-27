@@ -1,6 +1,7 @@
 {
   "schema": "rootglass.release.v1",
   "product": "Root Glass",
+  "currentProductIdentity": "Veyra",
   "version": "0.1.1-alpha",
   "target": {
     "os": "windows",
@@ -9,7 +10,7 @@
   },
   "mode": "read-only",
   "binary": {
-    "path": "dist/RootGlass.exe",
+    "path": "RootGlass.exe",
     "sizeBytes": 6476288,
     "sha256": "ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf",
     "authenticodeSigned": false
@@ -17,15 +18,37 @@
   "build": {
     "goVersion": "go version go1.23.2 linux/amd64",
     "cgoEnabled": false,
-    "trimpath": true
+    "trimpath": true,
+    "sourcePresentInRepository": false
+  },
+  "portableVerification": {
+    "workflow": ".github/workflows/verify-portable.yml",
+    "scope": "exact-head package coherence",
+    "verifies": [
+      "binary SHA-256 matches CHECKSUMS.txt and this manifest",
+      "binary byte size matches this manifest",
+      "AMD64 PE32+ Windows GUI target",
+      "declared unsigned Authenticode status",
+      "compatibility launchers expose bounded help"
+    ],
+    "doesNotVerify": [
+      "source provenance",
+      "read-only runtime behavior",
+      "collector correctness",
+      "live Windows outcomes"
+    ]
   },
   "verified": [
-    "go test -count=1 ./...",
-    "go vet ./...",
-    "PowerShell Generic.List compatibility regression gate",
-    "collector read-only policy gate (source-level in Linux)",
-    "Windows x64 cross-build",
-    "PE32+ Windows GUI target"
+    "go test -count=1 ./... (reported by imported build receipt)",
+    "go vet ./... (reported by imported build receipt)",
+    "PowerShell Generic.List compatibility regression gate (reported source-level proof)",
+    "collector read-only policy gate (reported source-level proof on Linux)",
+    "Windows x64 cross-build (reported by imported build receipt)",
+    "PE32+ Windows GUI target (reported by imported build receipt)"
+  ],
+  "pendingReconciliation": [
+    "replace the historical VERIFICATION.md receipt with a new source-bound receipt",
+    "bind the artifact to an exact source commit"
   ],
   "pendingLiveProof": [
     "Windows-native collector execution after v0.1.1 hotfix",

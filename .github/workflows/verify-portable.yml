@@ -1,0 +1,45 @@
+name: Verify portable package
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  portable-package:
+    name: Windows package coherence
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out exact subject
+        uses: actions/checkout@v4
+
+      - name: Verify package
+        shell: pwsh
+        run: ./tools/Verify-Portable.ps1
+
+      - name: Verify launchers expose bounded help
+        shell: pwsh
+        run: |
+          $veyraHelp = cmd.exe /d /c "Veyra.cmd help"
+          if ($LASTEXITCODE -ne 0 -or ($veyraHelp -join "`n") -notmatch 'read-only alpha') {
+            throw 'Veyra.cmd help did not expose the expected bounded package identity.'
+          }
+
+          $legacyHelp = cmd.exe /d /c "RootGlass.cmd help"
+          if ($LASTEXITCODE -ne 0 -or ($legacyHelp -join "`n") -notmatch 'v0.1.1-alpha') {
+            throw 'RootGlass.cmd help did not preserve the expected compatibility identity.'
+          }
+
+      - name: Upload exact-head receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: veyra-portable-verification-${{ github.sha }}
+          path: portable-verification.json
+          if-no-files-found: error
+          retention-days: 30

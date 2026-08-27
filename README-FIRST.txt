@@ -1,29 +1,45 @@
-ROOT GLASS v0.1.1-alpha HOTFIX
-================================
+VEYRA v0.1.1-alpha — PORTABLE EVALUATION PACKAGE
+=================================================
+
+PRODUCT IDENTITY
+  Veyra is the current product and repository name.
+  The imported alpha binary still uses the legacy Root Glass name internally.
 
 FASTEST START
-  Double-click RootGlass.cmd or RootGlass.exe.
-
-HOTFIX
-  Fixes the PowerShell collector error:
-    Argument types do not match
-  that could abort v0.1.0-alpha during core Windows evidence assembly.
+  Double-click Veyra.cmd.
 
 FULLER PROTECTED EVIDENCE
-  Run: RootGlass.cmd admin
-  Approve the Windows UAC prompt. Elevation increases visibility; the app remains read-only.
+  Run: Veyra.cmd admin
+  Approve the Windows UAC prompt. Elevation increases visibility;
+  the documented v0.1 boundary remains read-only.
 
 WHAT IT DOES
-  Maps services, processes, tasks, startup entries, sockets, Defender exclusions,
-  IFEO, AppInit, WMI persistence, executable signatures/hashes, and authority changes
-  into evidence-backed causal chains.
+  Maps services, processes, tasks, startup entries, sockets, Defender
+  exclusions, IFEO, AppInit, WMI persistence, signatures, hashes, and
+  authority changes into evidence-backed causal chains.
 
 LOCAL DATA
+  The legacy alpha currently writes beneath:
   %LOCALAPPDATA%\RootGlass\
 
-IMPORTANT
-  This alpha binary is not Authenticode-signed. Windows SmartScreen may warn.
-  Verify the SHA-256 in CHECKSUMS.txt before running.
+IMPORTANT PROOF BOUNDARY
+  - This repository contains the portable binary and documents, not source.
+  - The alpha binary is not Authenticode-signed. SmartScreen may warn.
+  - Exact-head Windows CI verifies the tracked binary against CHECKSUMS.txt,
+    RELEASE_MANIFEST.json, its byte size, PE target, and unsigned status.
+  - The imported VERIFICATION.md receipt names a different binary hash and
+    is preserved as historical evidence, not proof for the tracked binary.
+  - Windows-native post-hotfix proof is still pending in that receipt.
 
-DEVELOPMENT
-  Use the separate source package for RootGlass.cmd dev/build/test and Codex work.
+  Compute the binary hash yourself before evaluation:
+    certutil -hashfile RootGlass.exe SHA256
+
+  Read README.md, SECURITY.md, and VERIFICATION.md before elevated use.
+
+HOTFIX LINEAGE
+  v0.1.1-alpha is reported to fix the PowerShell collector error:
+    Argument types do not match
+  that could abort v0.1.0-alpha during core evidence assembly.
+
+SOURCE DEVELOPMENT
+  Blocked in this repository until the separate Go source package is imported.
