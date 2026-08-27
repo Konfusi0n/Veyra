@@ -1,6 +1,7 @@
 {
   "schema": "rootglass.release.v1",
   "product": "Root Glass",
+  "currentProductIdentity": "Veyra",
   "version": "0.1.1-alpha",
   "target": {
     "os": "windows",
@@ -9,7 +10,7 @@
   },
   "mode": "read-only",
   "binary": {
-    "path": "dist/RootGlass.exe",
+    "path": "RootGlass.exe",
     "sizeBytes": 6476288,
     "sha256": "ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf",
     "authenticodeSigned": false
@@ -17,15 +18,21 @@
   "build": {
     "goVersion": "go version go1.23.2 linux/amd64",
     "cgoEnabled": false,
-    "trimpath": true
+    "trimpath": true,
+    "sourcePresentInRepository": false
   },
   "verified": [
-    "go test -count=1 ./...",
-    "go vet ./...",
-    "PowerShell Generic.List compatibility regression gate",
-    "collector read-only policy gate (source-level in Linux)",
-    "Windows x64 cross-build",
-    "PE32+ Windows GUI target"
+    "go test -count=1 ./... (reported by imported build receipt)",
+    "go vet ./... (reported by imported build receipt)",
+    "PowerShell Generic.List compatibility regression gate (reported source-level proof)",
+    "collector read-only policy gate (reported source-level proof on Linux)",
+    "Windows x64 cross-build (reported by imported build receipt)",
+    "PE32+ Windows GUI target (reported by imported build receipt)"
+  ],
+  "pendingReconciliation": [
+    "independently recompute the tracked executable SHA-256",
+    "reconcile VERIFICATION.md with CHECKSUMS.txt and this manifest",
+    "bind the artifact to an exact source commit"
   ],
   "pendingLiveProof": [
     "Windows-native collector execution after v0.1.1 hotfix",

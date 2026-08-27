@@ -1,256 +1,378 @@
 <p align="center">
-  <img src="internal/webui/static/logo.svg" width="116" alt="Root Glass">
+  <img src="assets/veyra-hero.png" width="100%" alt="Veyra visualizes Windows authority as an evidence-backed graph: identities, services, persistence, exposure, and risk refracted through a glass-box security instrument.">
 </p>
 
-<h1 align="center">ROOT GLASS</h1>
+<p align="center">
+  <sub><strong>Concept visualization</strong> · not a product screenshot · displayed values are illustrative</sub>
+</p>
 
-<p align="center"><strong>See what has authority over your machine.</strong></p>
+<h1 align="center">VEYRA</h1>
 
 <p align="center">
-  Windows-first · local-only · read-only · evidence-backed · single executable
+  <strong>See what has power over your machine—and why.</strong><br>
+  A local-first, read-only glass-box security instrument for Windows authority, persistence, change, and evidence.
+</p>
+
+<p align="center">
+  <img alt="Alpha release" src="https://img.shields.io/badge/release-v0.1.1--alpha-F2B85B?style=flat-square">
+  <img alt="Windows 10 and 11 x64" src="https://img.shields.io/badge/target-Windows_10%2F11_x64-55DFF6?style=flat-square">
+  <img alt="Read-only mode" src="https://img.shields.io/badge/mode-read--only-4FE0AE?style=flat-square">
+  <img alt="Local-only data" src="https://img.shields.io/badge/data-local--only-8D7CFF?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="#the-instrument">Instrument</a> ·
+  <a href="#the-first-sixty-seconds">Experience</a> ·
+  <a href="#the-authority-graph">Authority Graph</a> ·
+  <a href="#what-is-real-today">Proof</a> ·
+  <a href="#run-the-portable-alpha">Run</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="ROADMAP.md">Roadmap</a>
+</p>
+
+<p align="center">
+  <sub><strong>OBSERVE → CORRELATE → EXPLAIN → PRESERVE → RECOMMEND</strong></sub>
 </p>
 
 ---
 
-Root Glass is a glass-box Windows authority inspector. It turns fragmented machine facts—services, processes, scheduled tasks, startup entries, executable trust, filesystem permissions, Defender exclusions, IFEO, AppInit, WMI persistence, and live network sockets—into a small number of inspectable causal chains.
+## The instrument
 
-It does **not** call itself an antivirus, declare that a machine is compromised, upload files, or mutate the host in v0.1.
+> **Most security tools tell you that something is risky. Veyra shows you the authority chain that makes it matter.**
 
-The core question is simpler and more useful:
+Windows does not have one place where authority lives. It accumulates across services, scheduled tasks, startup entries, executable trust, file permissions, Defender exclusions, interception mechanisms, process ancestry, and live network connections.
 
-> **What has authority on this computer, why does it have that authority, what changed, and what evidence supports the conclusion?**
+Each surface is individually inspectable. The problem is the relationship between them.
 
-## What v0.1 already does
+An unsigned executable is not automatically malicious. An outbound connection is not automatically suspicious. An automatic service is not automatically unwanted. But when the same executable is launched automatically, runs as `LocalSystem`, lives in a user-writable location, sits beneath a security exclusion, and opens an unexplained external connection, the combined authority deserves review.
 
-### Trust Overview
-
-Compresses hundreds of raw rows into at most five priority conditions. A condition is never just “unsigned file.” Root Glass correlates independent facts such as:
+Veyra turns those disconnected facts into an inspectable causal model:
 
 ```text
-AUTOMATIC SERVICE
+WHO
+  has
+WHAT CAPABILITY
+  over
+WHICH RESOURCE
+  through
+WHAT MECHANISM
+  supported by
+WHICH EVIDENCE
+```
+
+It does not need to shout **malware**. It can make the narrower, more defensible statement:
+
+> **This software possesses unusual machine authority. You should understand why.**
+
+That is the product.
+
+---
+
+## The first sixty seconds
+
+Veyra is designed to compress a messy Windows machine into a small number of reviewable conditions without hiding the underlying facts.
+
+```text
+open Veyra
+      ↓
+collect local, read-only Windows evidence
+      ↓
+normalize identities, persistence, files, processes, controls, and sockets
+      ↓
+compile deterministic authority relationships
+      ↓
+surface no more than five material conditions
+      ↓
+select one condition
+      ↓
+watch its hidden authority path illuminate
+      ↓
+inspect the exact observation supporting every node, edge, and claim
+```
+
+A material condition can resolve into something like:
+
+```text
+SYSTEM AUTHORITY — REQUIRES REVIEW
+
+Automatic service
       ↓ launches
-EXECUTABLE
+Unsigned executable in user-writable storage
       ↓ executes as
-LOCAL SYSTEM
-      ↓ spawned
-PROCESS TREE
-      ↓ opened
-EXTERNAL CONNECTION
+NT AUTHORITY\SYSTEM
+      ↓ owns
+Active external connection
+
+Confidence: HIGH
+Basis: 5 observations / 4 independent collectors
+
+Known:
+✓ Persistent across reboot
+✓ Executes with SYSTEM authority
+✓ Binary is unsigned
+✓ Installation path is user-writable
+✓ Active external communication
+
+Unknown:
+? Installation provenance
+? Remote endpoint purpose
+? Whether disabling it would break dependent software
 ```
 
-### Authority Graph
+The interface is not supposed to win by showing more data. It wins by making one consequential relationship understandable in under a minute.
 
-Normalizes persistence, executable artifacts, identities, processes, and network endpoints into a causal graph. Every edge names the collector evidence that established it.
+---
 
-### Investigation Mode
+## The authority graph
 
-Open a condition to see:
+Most Windows utilities organize the machine into tables. Veyra organizes it around **authority**.
 
-- the deterministic claim;
-- exact observations;
-- why the combined chain matters;
-- what remains unknown;
-- the highest-leverage next action;
-- the evidence source for every observation;
-- a copyable investigation brief for Codex or another analyst.
+```mermaid
+flowchart LR
+    U["Administrator"] -->|can modify| S["Service configuration"]
+    S -->|launches| E["Executable"]
+    E -->|runs as| L["LocalSystem"]
+    E -->|opens| N["Remote connection"]
+    D["Defender exclusion"] -.->|reduces inspection of| E
+```
 
-### Timeline / Delta
+That graph makes questions possible that Task Manager alone cannot answer:
 
-Stores local snapshots and reports material changes between runs:
+- What can execute as `SYSTEM`?
+- Which elevated executables are not Microsoft-signed?
+- What can persist without appearing in Startup Apps?
+- Which programs can replace or download executable code?
+- What security controls contain broad exclusions?
+- Which executable is reachable from more than one persistence mechanism?
+- What gained authority since the last clean snapshot?
 
-- services added, removed, or changed;
-- startup entries changed;
-- scheduled task authority changed;
-- Defender exclusions changed;
-- IFEO, AppInit, or WMI persistence changed;
-- executable hash or signature state changed.
+### Time changes the question
 
-### Intent Ledger
+The first snapshot asks:
 
-Machine capability and user permission are separate facts. Each condition can be marked:
+> **What has authority now?**
 
-- **Recognized** — expected authority;
-- **Review** — unresolved;
-- **Rejected** — authority the user does not consent to.
+A baseline asks something stronger:
 
-The label never erases the underlying evidence.
+> **What changed about who controls this machine?**
 
-### Evidence Inventory
+Veyra's delta engine tracks material changes to services, startup entries, scheduled tasks, Defender exclusions, IFEO, AppInit, WMI persistence, executable hashes, and signature state. The long-term aim is a kind of **Git history for machine authority**: not merely what is running, but where durable control appeared, disappeared, or expanded.
 
-Searchable local tables retain the raw facts behind the compressed interface:
+---
 
-- processes and ancestry;
-- services and execution identities;
-- scheduled tasks and actions;
-- startup registrations;
-- TCP surfaces and owning PIDs;
-- executable paths, hashes, signers, versions, and write zones;
-- Defender exclusions;
-- IFEO interception;
-- enabled AppInit DLL injection;
-- WMI permanent consumers.
+## The glass-box contract
 
-### Local exports
+Veyra keeps machine truth, deterministic reasoning, outside intelligence, explanation, and uncertainty visibly separate.
 
-Exports the complete snapshot as JSON or a human-readable Markdown report. Nothing is sent to a cloud service.
+| Layer | Meaning | Authority |
+|---|---|---|
+| **Observed** | Directly collected from the local machine. | May establish a measured fact, bounded by collector access and freshness. |
+| **Derived** | Deterministically computed from one or more observations. | May establish a reproducible relationship or finding. |
+| **External** | Reputation, publisher, or endpoint context obtained from another source. | May add context; it does not overwrite local evidence. |
+| **Interpreted** | A human- or model-readable explanation of structured evidence. | May explain or prioritize; it does not become machine truth. |
+| **Unknown** | Evidence is missing, inaccessible, stale, or inconclusive. | Remains unresolved. It is never silently converted into confidence. |
+| **Intent** | The operator recognizes, rejects, or wants to review delegated authority. | Records consent separately; it never erases evidence. |
 
-## Run it
+Every material indicator should answer five questions:
 
-### Fastest path
+1. **Why was this surfaced?**
+2. **According to what evidence?**
+3. **What remains unknown?**
+4. **What would the proposed response change?**
+5. **How would the result be verified or reversed?**
 
-Double-click:
+The model is not the security oracle. Collectors establish observations. Deterministic rules compile relationships. A model may eventually explain a bounded evidence packet. It may not declare compromise, authorize mutation, or manufacture missing machine truth.
+
+---
+
+## Operator surfaces
+
+The imported v0.1.1 alpha describes six connected surfaces:
+
+| Surface | Purpose |
+|---|---|
+| **Trust Overview** | Compress hundreds of rows into at most five conditions that actually deserve attention. |
+| **Authority Graph** | Connect persistence, executable artifacts, identities, processes, controls, and network endpoints into causal paths. |
+| **Investigation Mode** | Show the claim, confidence, compound reasoning, unknowns, evidence provenance, and next safe investigation step. |
+| **Timeline / Delta** | Compare snapshots and surface material changes in durable machine authority. |
+| **Evidence Inventory** | Retain searchable raw facts behind the compressed interface. |
+| **Intent Ledger** | Keep user recognition or rejection separate from observations and findings. |
+
+JSON and Markdown exports preserve the local snapshot for independent inspection. No account or cloud service is required by the alpha's documented design.
+
+---
+
+## What is real today
+
+Veyra applies its own doctrine to itself: appearance is not proof, and a polished repository must not hide its evidence boundary.
+
+| Claim | Current repository truth |
+|---|---|
+| **Public subject** | `main` currently contains one imported portable Windows alpha, launcher files, release documents, and this presentation layer. |
+| **Executable** | A 6,476,288-byte Windows x64 GUI binary is present under the legacy name `RootGlass.exe`. |
+| **Source** | The Go source tree described by the imported documentation is **not present in this repository**. The current binary cannot be reproduced from this checkout. |
+| **Build evidence** | The imported manifest and verification receipt report Go tests, vetting, policy gates, and a Windows cross-build performed against a separate source package. Those gates cannot be rerun here. |
+| **Hosted CI** | No GitHub Actions workflow or exact-head status check is present on the imported commit. |
+| **Windows proof** | The receipt explicitly leaves Windows-native collector execution, browser launch, and protected-evidence coverage pending after the v0.1.1 hotfix. |
+| **Signing** | The alpha binary is not Authenticode-signed. Windows SmartScreen may warn. |
+| **Mutation** | The documented v0.1 boundary is read-only; the repository contains no evidence of a remediation capability. |
+
+> [!CAUTION]
+> **Artifact identity is not yet cleanly reconciled.** `CHECKSUMS.txt` and `RELEASE_MANIFEST.json` declare SHA-256 `ecaaba0591251fb9f769d6e101646a87b5c719997c4f748204ca929bc639e9bf`, while the imported [`VERIFICATION.md`](VERIFICATION.md) receipt names a different hash. The original receipt is preserved instead of being silently rewritten. Treat this alpha as provenance-limited until one rebuilt artifact, one checksum, one exact-source commit, and one Windows-native receipt are published together.
+
+This is not cosmetic self-criticism. It is Veyra's thesis applied inward: **a confidence-shaped document is not independent evidence.**
+
+---
+
+## Run the portable alpha
+
+> [!WARNING]
+> The current package is an unsigned, provenance-limited alpha. Evaluate it only on a machine you own and are prepared to inspect. Review [`SECURITY.md`](SECURITY.md) before running with elevation.
+
+### 1. Download the repository
+
+Use GitHub's **Code → Download ZIP**, extract it, and keep the launcher beside `RootGlass.exe`.
+
+### 2. Compute the binary hash yourself
+
+From Command Prompt:
+
+```bat
+certutil -hashfile RootGlass.exe SHA256
+```
+
+Compare the result with `CHECKSUMS.txt`, then read the artifact-identity warning above. A matching checksum proves byte identity with that declaration; it does not prove source provenance, signing, or live behavior.
+
+### 3. Launch
+
+```bat
+Veyra.cmd
+```
+
+For fuller visibility into protected Windows evidence:
+
+```bat
+Veyra.cmd admin
+```
+
+Elevation expands read visibility. It does not grant remediation authority in the documented v0.1 boundary.
+
+### Legacy naming
+
+Veyra is the current product and repository identity. The imported v0.1.1 binary, its embedded interface, environment variables, and local data directory still use the earlier **Root Glass** name. `Veyra.cmd` is a compatibility launcher; it does not pretend the binary rebrand is complete.
+
+---
+
+## Architecture
+
+The imported alpha documentation reports a self-contained Go application with an embedded web interface and no Node, Python, .NET, installer, account, or cloud dependency.
+
+```mermaid
+flowchart TD
+    O["Operator"] --> L["Veyra compatibility launcher"]
+    L --> A["Legacy RootGlass.exe alpha"]
+    A --> C["Read-only Windows collectors"]
+    C --> M["Versioned observations"]
+    M --> R["Deterministic correlation rules"]
+    R --> G["Authority graph"]
+    G --> U["Local loopback interface"]
+    G --> B["Baseline and delta store"]
+    G --> X["JSON / Markdown export"]
+    I["Intent ledger"] -. records operator context .-> G
+```
+
+The reported boundary is deliberately narrow:
 
 ```text
-RootGlass.cmd
+observe → correlate → explain → preserve evidence → recommend
 ```
 
-The launcher starts the prebuilt single-file application:
+It is not:
 
 ```text
-dist\RootGlass.exe
+detect → delete → hope
 ```
 
-Root Glass opens in an Edge or Chrome app window when available, otherwise in the default browser. The executable binds only to a random loopback port and requires a random per-run API token.
+Because the source is not yet in this repository, the diagram is a documented architecture—not independently reproducible proof from this checkout. Importing and binding the source is Gate 0 of the [`ROADMAP.md`](ROADMAP.md).
 
-### Fuller protected evidence
+---
 
-A normal user token cannot read every protected process path or security setting. To run the same read-only collectors with an administrator token:
+## Read-only boundary
 
-```text
-RootGlass.cmd admin
-```
+The imported v0.1 security contract excludes code paths that:
 
-Windows will display a UAC prompt. Elevation increases visibility; it does not enable remediation.
-
-### Development mode
-
-```text
-RootGlass.cmd dev
-```
-
-This runs directly from source with the installed Go toolchain.
-
-### Build
-
-```text
-RootGlass.cmd build
-```
-
-The build gate formats source, parses every embedded PowerShell collector with the native AST parser, enforces a forbidden-mutation command policy, runs tests and vetting, builds a self-contained Windows x64 executable, and prints its SHA-256.
-
-### Test
-
-```text
-RootGlass.cmd test
-```
-
-## Single-file release architecture
-
-The distributed application is one executable because Go embeds the complete HTML/CSS/JavaScript interface at compile time.
-
-```text
-RootGlass.exe
-  ├── loopback-only application server
-  ├── embedded interface
-  ├── deterministic Windows collectors
-  ├── artifact enrichment
-  ├── correlation / rule engine
-  ├── authority graph compiler
-  ├── intent ledger
-  ├── baseline diff engine
-  └── JSON / Markdown exporters
-```
-
-There is no Node runtime, Python runtime, .NET runtime, package installation, account, or cloud dependency.
-
-The source tree remains conventional and easy for Codex to extend:
-
-```text
-cmd/rootglass/          application entry point
-internal/app/           loopback server, lifecycle, and API boundary
-internal/collector/     read-only Windows collectors and demo collector
-internal/engine/        deterministic authority rules and graph compiler
-internal/baseline/      local snapshots and delta engine
-internal/intent/        user-intent ledger
-internal/model/         versioned evidence contracts
-internal/report/        local report / investigation brief generation
-internal/webui/         embedded cinematic interface
-```
-
-## Deterministic doctrine
-
-Root Glass deliberately keeps four layers separate:
-
-```text
-OBSERVATION
-A collected machine fact.
-
-CLAIM
-A deterministic rule interpreting multiple observations.
-
-UNKNOWN
-A boundary the evidence has not resolved.
-
-INTENT
-The user's recognition or rejection of that authority.
-```
-
-A model may eventually explain or prioritize a structured evidence packet. A model must not silently convert uncertainty into machine truth or authorize host mutation.
-
-## Read-only guarantee in v0.1
-
-The application does not:
-
-- stop or kill processes;
-- stop, disable, create, or delete services;
-- register or remove scheduled tasks;
-- modify startup entries or the registry;
-- add or remove Defender exclusions;
+- terminate processes;
+- stop, disable, create, or delete services or tasks;
+- modify startup entries, the registry, Defender, or firewall settings;
 - quarantine or delete files;
-- add firewall rules;
-- upload files, hashes, command lines, or snapshots;
-- install tools;
-- inspect packet contents;
-- load a kernel driver.
+- download or upload evidence;
+- inspect packet payloads;
+- install a driver;
+- persist Veyra itself.
 
-It writes only its own local evidence, intent, and log files beneath:
+The application is documented to bind only to a random loopback port, require a random per-run API token, validate Host and Origin, escape untrusted machine strings, load no external interface resources, and retire when the visible UI is gone and no scan is active.
 
-```text
-%LOCALAPPDATA%\RootGlass\
-```
+Read the complete imported boundary in [`SECURITY.md`](SECURITY.md).
 
-Set `ROOTGLASS_DATA_DIR` or use `-data-dir` to override that location.
+---
 
-## Important trust caveats
+## Why Veyra is different
 
-- The included alpha binary is **not Authenticode-signed**. Windows SmartScreen may warn because no commercial code-signing certificate was available for this build.
-- Root Glass uses built-in Windows PowerShell as a read-only collection bridge. Collector bodies are compiled into the executable and passed only to the child process through a temporary environment variable; the command line contains a fixed bridge rather than the collector text. Endpoint controls may still scrutinize PowerShell activity.
-- Authenticode status requires interpretation. Package-managed WindowsApps executables and catalog-signed Windows components can differ from ordinary embedded signatures.
-- A live-host snapshot cannot rule out firmware compromise, kernel-memory-only implants, protected-process injection, offline artifacts, or evidence altered during collection.
-- “No finding” means only that the current deterministic rule pack did not compile a material condition from the evidence it could access.
+Veyra is not differentiated by owning a service collector, a process list, or a socket table. Mature tools already expose those facts.
 
-See [SECURITY.md](SECURITY.md) for the complete boundary.
+The synthesis is the product:
 
-## Highest-yield next slices
+> **A local-first, evidence-backed visual model of what possesses authority over a Windows system, how that authority was obtained, how it changes over time, and what evidence justifies every conclusion.**
 
-The current release intentionally cuts antivirus scanning, deletion, cloud reputation, packet inspection, kernel drivers, EDR fleet management, and autonomous remediation.
+That produces a different user reaction from “wow, lots of telemetry.”
 
-The next valuable work is narrower:
+It produces:
 
-1. **Authority Timeline v0.2** — correlate first-seen service/task/executable state with Windows event history and installer provenance.
-2. **Investigation Recursion v0.3** — recursively resolve “what created this?”, “what launches it?”, “what does it launch?”, and “what trusts or ignores it?”
-3. **Evidence Packs v0.4** — versioned, shareable, privacy-redacted investigation bundles.
-4. **Bounded Remediation v0.5** — explicit proposed action, effects, rollback, execution receipt, reboot proof, and no ambient mutation authority.
+> **Holy shit. I can finally see what my computer is actually permitting.**
 
-See [ROADMAP.md](ROADMAP.md).
+---
 
-## Current release identity
+## Roadmap
 
-```text
-Version: 0.1.1-alpha
-Target:  Windows 10/11 x64
-Mode:    Read-only
-Runtime: Self-contained Go executable
-```
+The highest-leverage next move is not more collectors or autonomous remediation. It is making the existing alpha independently buildable and provable.
 
-Build the binary locally before treating any hash in a release note as authoritative.
+1. **Gate 0 — Release integrity:** import the complete source, bind receipts to an exact commit, reconcile the binary identity, add Windows CI, and publish live Windows proof.
+2. **Authority Timeline:** connect first-seen authority changes to event history and installation provenance.
+3. **Investigation Recursion:** resolve what created an object, what launches it, what it launches, and what trusts or ignores it.
+4. **Evidence Packs:** produce versioned, privacy-redacted, independently inspectable investigation bundles.
+5. **Bounded Remediation:** admit only typed actions with exact targets, effects, non-effects, rollback, receipts, and reboot verification.
+
+See the proof contract and explicit non-goals in [`ROADMAP.md`](ROADMAP.md).
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [`README-FIRST.txt`](README-FIRST.txt) | Portable-package orientation and current proof warning. |
+| [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | v0.1.1 hotfix lineage and imported alpha scope. |
+| [`RELEASE_MANIFEST.json`](RELEASE_MANIFEST.json) | Machine-readable imported build declaration. |
+| [`CHECKSUMS.txt`](CHECKSUMS.txt) | Declared checksum for the tracked executable. |
+| [`VERIFICATION.md`](VERIFICATION.md) | Historical build receipt and explicit identity mismatch. |
+| [`SECURITY.md`](SECURITY.md) | Security boundary, sensitive assets, threats, and limitations. |
+| [`ROADMAP.md`](ROADMAP.md) | Proof-ordered path from alpha integrity to bounded remediation. |
+| [`LICENSE`](LICENSE) | Proprietary license terms. |
+
+---
+
+## Product identity
+
+**Veyra** is the machine-authority and evidence instrument in the Direct Autonomy Systems portfolio.
+
+It is not Sigil and it is not Sovereign. It shares laws with those systems—speech is not authority, capability is not permission, appearance is not proof, uncertainty stays explicit—but it retains its own identity, data boundary, release proof, and user promise.
+
+The name **Root Glass** remains only as implementation lineage in the imported alpha artifacts until the source-backed rebrand can migrate executable names, storage paths, schemas, and receipts without breaking existing local evidence.
+
+---
+
+## License
+
+Copyright © 2026 Direct Autonomy Systems LLC. All rights reserved.
+
+This repository is proprietary. No permission is granted to copy, modify, distribute, sublicense, or sell the software except under a separate written license from the copyright holder. See [`LICENSE`](LICENSE).
